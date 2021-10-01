@@ -23,8 +23,14 @@ pprint.pprint(TRASCRIPT_CONFIG)
 
 ### global
 
-def is_item_vowel(item):
+def is_item_vowel(item): # also works for letter because 'l'[0] == 'l'
     return item[0] in BASIC_VOWELS
+
+def assonance_closeness(v1, v2):
+    v1 = TRASCRIPT_CONFIG['assonance_vectors'][v1]
+    v2 = TRASCRIPT_CONFIG['assonance_vectors'][v2]
+    
+    return (v1[0] - v2[0])**2 + (v1[1] - v2[1])**2
 
 ### final_check
 
@@ -36,15 +42,34 @@ def check(w1, w2):
     w1 = vowel_split(w1)
     w2 = vowel_split(w2)
     
-    # print(w1, w2)
+    end_remains_1 = not is_item_vowel(w1[0][0])
+    end_remains_2 = not is_item_vowel(w2[0][0])
 
-    sim = 0
-    for item in w1:
-        for item2 in w2:
-            if item[0][0] in TRASCRIPT_CONFIG['groups'] and item2[0][0] in TRASCRIPT_CONFIG['groups']:
-                sim += letter_similarity(item, item2)
-    print(sim)
-    print(vowel_split(w2))
+
+    sim = (end_remains_1 == end_remains_2)*10
+    for i in range(min(len(w1) - end_remains_1,
+                       len(w2) - end_remains_2)):
+        i1 = w1[i + end_remains_1]
+        i2 = w2[i + end_remains_2]
+        stress1 = '.' if len(i1) == 1 else i1[1]
+        stress2 = '.' if len(i2) == 1 else i2[1]
+        stresses = sorted((p1, p2))
+        
+        if stresses == ["'", '.']: # strict and not strict stress
+            return 0 # bad rythm
+        
+        point_closeness = assonance_closeness(i1[0], id2[0])
+        
+        if stresses == ["'", "`"]:
+            point_closeness *= 2
+
+        if stresses == ["'", "'"]:
+            point_closeness *= 5
+        
+        sim -= point_closeness
+
+    for i in range(len(w1)):
+        ...
 
 
 
@@ -180,7 +205,7 @@ check(w1, w5)
 check(w1, w6)
 check(w1, w7)
 check(w1, w8)
-check('слава', 'слева')
+check("сла'ва", "сле'ва")
 
 # import pickle
 # a = pickle.load(open('normal_stresses.pkl', 'rb'))
