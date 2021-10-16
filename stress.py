@@ -24,4 +24,5 @@ print('SUCC')
 
 import pickle
 
-pickle.dump(word_normal_form_list, open('normal_stresses.pkl', 'wb'))
+pickle.dump(word_normal_form_list,
+            open('normal_stresses.pkl', 'wb'))

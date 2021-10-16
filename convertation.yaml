@@ -10,6 +10,7 @@ replace:
   ь: '`'
   ъ: '' # empty string
   й: j
+  -: ''
   
 j_vowel:
   е: э
@@ -31,4 +32,4 @@ groups:
   X:  [х, ф]
   K:  [к, т, п]
   R:  [р, л, н, м]
-  J:  [й]
+  J:  [j]
