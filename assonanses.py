@@ -2,6 +2,8 @@ import numpy as np
 import yaml
 import re
 
+import utils
+
 TRASCRIPT_CONFIG = yaml.safe_load(open('convertation.yaml',
                                        encoding = 'utf-8'))
 
@@ -55,17 +57,19 @@ def alliteration_similarity(l1, l2):
 
 ### final_check
 
+
 def check(w1, w2):
-    #print(w1, w2)
-    w1 = transcript(w1)
-    w2 = transcript(w2)
 
-    w1 = reversed_transcription_to_array(w1)
-    w2 = reversed_transcription_to_array(w2)
+    # utils.timer('s')
+    w1 = full_transcript(w1)
+    # utils.timer('w1')
+    w2 = full_transcript(w2)
+    # utils.timer('w2')
+    res = transcripted_check(w1, w2)
+    # utils.timer('tc')
+    return res
 
-    w1 = vowel_split(w1)
-    w2 = vowel_split(w2)
-    
+def transcripted_check(w1, w2):    
     end_remains_1 = not is_item_vowel(w1[0][0]) # is there a consonant(s) in the end of first world 
     end_remains_2 = not is_item_vowel(w2[0][0]) # …of the second world
 
@@ -122,8 +126,11 @@ def check(w1, w2):
     #print(sim)
     return sim
 
-
-
+def full_transcript(w):
+    w = transcript(w)
+    w = reversed_transcription_to_array(w)
+    w = vowel_split(w)
+    return w
 
 ### arrayisation
 
@@ -250,4 +257,4 @@ def secondary_replace(w):
 
 # import pickle
 # a = pickle.load(open('normal_stresses.pkl', 'rb'))
-check("еванге'лик", "куса'ть")
+check("куса'ть", "еванге'лик")

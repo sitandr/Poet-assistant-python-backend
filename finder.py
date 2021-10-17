@@ -1,4 +1,4 @@
-from assonanses import check
+from assonanses import check, full_transcript, transcripted_check
 
 import pickle
 
@@ -23,6 +23,9 @@ import bisect
 # mind the stress!
 to_find = "со'лнце"
 assert "'" in to_find
+
+to_find_data = full_transcript(to_find)
+
 field = wv.create_field('исскуство', 'время', 'дорога')
 
 best = [(-float('inf'), '')]
@@ -32,7 +35,7 @@ N_BEST_MIND = 100
 
 i = 0
 for form in words:
-      new = check(to_find, form)
+      new = transcripted_check(to_find_data, full_transcript(form))
       if new > best[0][0] and form != to_find:
             bisect.insort(best, (new, form))
             if len(best) > N_BEST_COUNT:
