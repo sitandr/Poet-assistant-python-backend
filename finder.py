@@ -12,21 +12,22 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-words = pickle.load(open('normal_stresses.pkl', 'rb'))
+words_ = pickle.load(open('normal_stresses.pkl', 'rb'))
 # word_normal_form_list = [(key, getstressed(key))
 #                          for key in words]
-words = {form for w in words for form in words[w] if (form not in ['-', '']) }
+words = {form for w in words_ for form in words_[w] if (form not in ['-', '']) }
 print('united')
 import wv
 import bisect
 
 # mind the stress!
-to_find = "любо'вь"
-field = wv.create_field('битва', 'удар', 'смерть')
+to_find = "со'лнце"
+assert "'" in to_find
+field = wv.create_field('исскуство', 'время', 'дорога')
 
 best = [(-float('inf'), '')]
 
-N_BEST_COUNT = 300
+N_BEST_COUNT = 500
 N_BEST_MIND = 100
 
 i = 0
@@ -42,6 +43,12 @@ for form in words:
             
 to_find = wv.morph.normal_forms(normalize(to_find))
 
+def get_source(form):
+      for w in words_:
+            for form_ in words_[w]:
+                  if form_ == form:
+                        return w
+
 def key_function(key):
       word = wv.morph.normal_forms(normalize(key[1]))[0]
       score = key[0]
@@ -55,4 +62,5 @@ def key_function(key):
       return sim*score
 
 print('sorting…')
-print(sorted(best, key = key_function, reverse = True)[:N_BEST_MIND])
+print(list(map(lambda t: t[1],
+               sorted(best, key = key_function, reverse = True)[:N_BEST_MIND])))

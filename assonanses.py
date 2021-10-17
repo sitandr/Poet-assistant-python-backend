@@ -188,7 +188,7 @@ def j_vowels_replace(w):
             if ind == 0:
                 w = 'j' + replace_to + w[1:]
             elif w[ind - 1] in J_VOWELS_JOTTED:
-                w = w[:ind - 1] + 'j' + replace_to + w[ind + 1:]
+                w = w[:ind] + 'j' + replace_to + w[ind + 1:]
             else:
                 w = w[:ind] + '`' + replace_to + w[ind + 1:]
 
