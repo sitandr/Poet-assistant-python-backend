@@ -1,7 +1,7 @@
-from assonanses import check, full_transcript, transcripted_check
+from translator import check, full_transcript, transcripted_check
 
 import pickle
-
+import utils
 
 def getstressed(word):
       res = words[word][0]
@@ -21,7 +21,7 @@ import wv
 import bisect
 
 # mind the stress!
-to_find = "со'лнце"
+to_find = "потрея'ю"
 assert "'" in to_find
 
 to_find_data = full_transcript(to_find)
@@ -32,7 +32,7 @@ best = [(-float('inf'), '')]
 
 N_BEST_COUNT = 500
 N_BEST_MIND = 100
-
+utils.timer()
 i = 0
 for form in words:
       new = transcripted_check(to_find_data, full_transcript(form))
@@ -43,7 +43,7 @@ for form in words:
       i += 1
       if not i%1000:
             print(round(i/len(words)*100, 2), '%')
-            
+utils.timer()     
 to_find = wv.morph.normal_forms(normalize(to_find))
 
 def get_source(form):
