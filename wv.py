@@ -1,20 +1,16 @@
-# from gensim.models import KeyedVectors
 import numpy as np
 import pymorphy2
 import pickle as pkl
 
 morph = pymorphy2.MorphAnalyzer()
 
-vocab =      pkl.load(open('vocab.pkl', 'rb'))
+word2index = pkl.load(open('word2index.pkl', 'rb'))
 index2word = np.array(pkl.load(open('index2word.pkl', 'rb')))
 vectors =    np.load('vectors.npy')
 
 
-def word2index(word):
-      return vocab[word].index
-
 def word2vector(word):
-      return vectors[word2index(word)]
+      return vectors[word2index[word]]
 
 def best_that(function, array = index2word, n = 100):
       func = np.vectorize(function)
@@ -32,7 +28,7 @@ def create_field(*words):
       return (mu, sigma)
 
 def field_distance(field, word):
-      return np.sum((word2index(word) - field[0])**4 / field[1])**(1/10)
+      return np.sum((word2index[word] - field[0])**4 / field[1])**(1/10)
 
 def best_by_field(field, array = index2word, n = 100):
       if array is not index2word:
