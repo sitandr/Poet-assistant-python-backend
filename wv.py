@@ -12,6 +12,9 @@ vectors =    np.load('vectors.npy')
 def word2vector(word):
       return vectors[word2index[word]]
 
+def words2vectors(words):
+      return vectors[np.where(np.isin(index2word, words))]
+
 def best_that(function, array = index2word, n = 100):
       func = np.vectorize(function)
       applied = func(array)
@@ -32,7 +35,7 @@ def field_distance(field, word):
 
 def best_by_field(field, array = index2word, n = 100):
       if array is not index2word:
-            vects = vectors[np.where(np.isin(index2word, array))]
+            vects = words2vectors(array)
       else:
             vects = vectors
       return array[np.argsort(np.sum((vects - field[0])**4 / field[1], axis = -1))[:n]]
