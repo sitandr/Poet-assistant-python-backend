@@ -24,6 +24,16 @@ def word_filter(function, array = index2word):
       func = np.vectorize(function)
       return array[np.where(func(array))]
 
+def filter_by_parts_of_speech(words, removed_speech_parts):
+      if len(removed_speech_parts) == 0:
+            return words
+      removed_speech_parts = set(removed_speech_parts)
+      words_ = set()
+      for word in words:
+            if not set(morph.tag(word)[0].grammemes)&removed_speech_parts:
+                  words_.add(word)
+      return words_
+
 def create_field(*words):
       vects = vectors[np.where(np.isin(index2word, words))]
       mu = np.average(vects, 0)

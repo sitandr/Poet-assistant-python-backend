@@ -9,7 +9,9 @@ TRASCRIPT_CONFIG = yaml.safe_load(open('convertation.yaml',
 GROUPS = list(TRASCRIPT_CONFIG['groups'].keys()) # this assumes that the order is important; however, python dicts don't
 # gurantee it, so it shold be replaced (but it works)
 
-J_VOWELS_JOTTED = [' ', 'ъ', 'ь'] + list(TRASCRIPT_CONFIG['assonance_vectors'].keys())
+J_VOWELS_JOTTED = ([' ', 'ъ', 'ь', "'"] + list(TRASCRIPT_CONFIG['assonance_vectors'].keys())+
+                   list(TRASCRIPT_CONFIG['j_vowel'].keys()))
+
 GROUP_STRUCTURE = {TRASCRIPT_CONFIG['groups'][group][group_number]: (group, group_number)
                    for group in TRASCRIPT_CONFIG['groups']
                    for group_number in range(len(TRASCRIPT_CONFIG['groups'][group]))}
@@ -68,13 +70,23 @@ def check(w1, w2):
     # utils.timer('tc')
     return res
 
-def transcripted_check(w1, w2):    
+def transcripted_check(w1, w2):
+    k_consend = 0.05
+    k_assonanses = 1/5
+
     end_remains_1 = not is_item_vowel(w1[0][0]) # is there a consonant(s) in the end of first world 
     end_remains_2 = not is_item_vowel(w2[0][0]) # …of the second world
 
-    sim = (end_remains_1 == end_remains_2)*8
-    k = 1
-    
+    sim = (end_remains_1 == end_remains_2)*k_consend
+                    
+    allit_sim = vowel_ryphm_component(w1, w2, end_remains_1, end_remains_2)
+    assonance_sim = assonance_ryphm_component(w1, w2, end_remains_1, end_remains_2)
+    return (sim + allit_sim
+            + assonance_sim*k_assonanses)
+
+def vowel_ryphm_component(w1, w2, end_remains_1, end_remains_2,
+                          k_not_strict_stress = 5, k_strict_stress = 20):
+    allit_sim = 0
     # check of vowels sounds
     for syll in range(min(len(w1) - end_remains_1,
                        len(w2) - end_remains_2)):
@@ -87,19 +99,24 @@ def transcripted_check(w1, w2):
         stresses = sorted((stress1, stress2))
         
         if stresses == ["'", '.']: # strict and strict no stress
-            return 0 # bad rythm
+            return -100 # bad rythm
        
         vowel_dist = assonance_distance(i1[0], i2[0])
         
         if stresses == ["'", "`"]:
-            vowel_dist *= 5
+            vowel_dist *= k_not_strict_stress
 
         if stresses == ["'", "'"]:
-            vowel_dist *= 20
+            vowel_dist *= k_strict_stress
         
-        sim -= vowel_dist*k
-        
+        allit_sim -= vowel_dist
+    return allit_sim/(len(w1) + len(w2))
 
+def assonance_ryphm_component(w1, w2, end_remains_1, end_remains_2,
+                              shift_coord_assonanse = 1.0, shift_syll_ending = 1.0,
+                              pow_coord_delta = 3, pow_syll_ending = 1):
+    assonance_sim = 0
+    i = 0
     # terrible nesting, but have no idea how to make it better
     for syll1 in range(len(w1)):
         
@@ -117,9 +134,12 @@ def transcripted_check(w1, w2):
                     # "weights" less; in fact, there is just a coefficient 2
                     
                     value_sim = alliteration_similarity(syll_data1[lett1], syll_data2[lett2])
-                    sim += value_sim/(abs(coord_distance) + 1)**3*k/3/(syll1 + syll2 + 1)
-
-    return sim
+                    
+                    assonance_sim += (value_sim/(abs(coord_distance) + shift_coord_assonanse)**pow_coord_delta
+                                      /(syll1 + syll2 + shift_syll_ending)**pow_syll_ending)
+                    i += 1
+                    
+    return assonance_sim/(i + 1)
 
 def full_transcript(w):
     w = transcript(w)
