@@ -7,7 +7,7 @@ TRASCRIPT_CONFIG = yaml.safe_load(open('convertation.yaml',
                                        encoding = 'utf-8'))
 
 GROUPS = list(TRASCRIPT_CONFIG['groups'].keys()) # this assumes that the order is important; however, python dicts don't
-# gurantee it, so it shold be replaced (but it works)
+# gurantee it, so it could be be replaced (but it works for Python >= 3.7)
 
 J_VOWELS_JOTTED = ([' ', 'ъ', 'ь', "'"] + list(TRASCRIPT_CONFIG['assonance_vectors'].keys())+
                    list(TRASCRIPT_CONFIG['j_vowel'].keys()))

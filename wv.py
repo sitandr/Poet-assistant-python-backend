@@ -4,9 +4,9 @@ import pickle as pkl
 
 morph = pymorphy2.MorphAnalyzer()
 
-word2index = pkl.load(open('word2index.pkl', 'rb'))
-index2word = np.array(pkl.load(open('index2word.pkl', 'rb')))
-vectors =    np.load('vectors.npy')
+word2index = pkl.load(open('r_word2index.pkl', 'rb'))
+index2word = np.array(pkl.load(open('r_index2word.pkl', 'rb')))
+vectors =    np.load('r_vectors.npy')
 
 
 def word2vector(word):
@@ -41,7 +41,7 @@ def create_field(*words):
       return (mu, sigma)
 
 def field_distance(field, word):
-      return np.sum((word2index[word] - field[0])**4 / field[1])**(1/10)
+      return np.sum((word2index[word] - field[0])**2 / field[1])**(1/10)
 
 def best_by_field(field, array = index2word, n = 100):
       if array is not index2word:
@@ -53,3 +53,9 @@ def best_by_field(field, array = index2word, n = 100):
 def distance(word1, word2):
       "Max 2, min — 0"
       return np.sum((word2vector(word1) - word2vector(word2))**2, axis = -1)
+
+if __name__ == '__main__':
+      my = create_field(*['битва', 'кровь', 'ярость', 'храбрость', 'герой', 'зло'])
+      for i in ['слово', 'слава', 'компьютер', 'кусать', 'герой', 'сладкий', 'бизнес']:
+            print(i, field_distance(my, i))
+      print(best_by_field(my))
