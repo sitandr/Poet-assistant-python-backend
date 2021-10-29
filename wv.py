@@ -41,7 +41,7 @@ def create_field(*words):
       return (mu, sigma)
 
 def field_distance(field, word):
-      return np.sum((word2index[word] - field[0])**2 / field[1])**(1/10)
+      return np.sum((word2vector(word) - field[0])**4 / field[1])
 
 def best_by_field(field, array = index2word, n = 100):
       if array is not index2word:

@@ -6,9 +6,9 @@ import utils
 import wv
 import bisect
 
-basic_fields = {'Art': ['исскуство', 'свет', 'огонь', 'творчество', 'вдохновение', 'мечта'],
-                'Battle': ['битва', 'кровь', 'ярость', 'храбрость', 'герой', 'зло'],
-                'Love': ['страсть', 'влечение', 'красота', 'сердце', 'поцелуй'],
+basic_fields = {'Art': ['исскуство', 'свет', 'огонь', 'творить', 'вдохновение', 'мечтать'],
+                'Battle': ['битва', 'кровь', 'безумствовать', 'храбрый', 'герой', 'зло'],
+                'Love': ['страсть', 'влечение', 'красота', 'сердце', 'целовать'],
                 'Epic': ['мощь', 'великий', 'просветление', 'мудрость'],
                 'Fear': ['страх', 'опасность', 'побег'],
                 'Dark': ['тьма', 'смерть', 'труп', 'отчаяние', 'безумие']}
@@ -74,10 +74,7 @@ def get_source(form):
 def quick_source(form):
       nform = normalize(form)
       if nform in normal_forms:
-            r = words_loaded[nform][0]
-            if r in ('-', ''):
-                  return words_loaded[nform][1]
-            return r
+            return nform
       
       if len(form) <= 4:
             return get_source(form)
@@ -93,23 +90,26 @@ def quick_source(form):
 
       return get_source(form)
 
-def get_best(transcription_sim_words, n_best = 100,
-             words_field = None, words_synonym = None,
-             weight = 0.03):
-      assert words_field or words_synonym
+def cut_first_n_from_items(sorted_items, n_best):
+      return list(map(lambda t: t[1], sorted_items))[:n_best + 1]
 
+def get_best(transcription_sim_words, 
+             words_syn = None, n_best = 100,
+             weight = 2.0, exclude = []):
       
+      if not words_syn:
+            return cut_first_n_from_items(transcription_sim_words, n_best)
       
       cash_normal_f = {}
 
       def get_nf(w):
             if w not in cash_normal_f:
-                  cash_normal_f[w] = wv.morph.normal_forms(normalize(w))[0]
+                  cash_normal_f[w] = quick_source(w)
 
             return cash_normal_f[w]
 
       unic_words = []
-      norm_forms = []
+      norm_forms = [get_nf(i) for i in exclude]
       
       for i in transcription_sim_words:
             f = get_nf(i[1])
@@ -117,35 +117,22 @@ def get_best(transcription_sim_words, n_best = 100,
                   unic_words.append(i)
                   norm_forms.append(f)
       
-      def transform(key):
-            return key[0], get_nf(key[1])
       
-      if words_field:
-            field = wv.create_field(*words_field)
-            def key_function(key):
-                  score, word = transform(key)
-                  if word not in wv.index2word:
-                        sim = -100
-                        print(word)
-                  else:
-                        sim = - wv.field_distance(field, word) * weight
-                  return sim + score
+      if len(words_syn) > 1:
+            field = wv.create_field(*words_syn)
+            sim_function = lambda word: - wv.field_distance(field, word) * weight
 
-      elif words_synonym:
-            words_synonym = get_nf(words_synonym)
+      else:
+            words_synonym = get_nf(words_syn[0])
+            sim_function = lambda word: - wv.distance(words_synonym, word) * weight
             
-            def key_function(key):
-                  score, word = transform(key)
-                  if word not in wv.index2word:
-                        sim = -100
-                  else:
-                        sim = - wv.distance(words_synonym, word * weight)
-                  return sim + score
+      def key_function(key):
+            score, word = key[0], get_nf(key[1])
+            return sim_function(word) + score
+            
+      sorted_items = sorted(unic_words, key = key_function, reverse = True)
       
-      sorted_words = list(map(lambda t: t[1], sorted(unic_words, key = key_function, reverse = True)))
-      
-
-      return sorted_words[:n_best + 1]
+      return cut_first_n_from_items(sorted_items, n_best)
 
 
 # filter_remove_parts_of_speech([])

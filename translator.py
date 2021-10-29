@@ -139,7 +139,7 @@ def assonance_ryphm_component(w1, w2, end_remains_1, end_remains_2,
                                       /(syll1 + syll2 + shift_syll_ending)**pow_syll_ending)
                     i += 1
                     
-    return assonance_sim/(i + 1)
+    return assonance_sim/(i + 1)**1.5
 
 def full_transcript(w):
     w = transcript(w)
