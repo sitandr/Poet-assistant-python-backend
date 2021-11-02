@@ -18,10 +18,14 @@ GROUP_STRUCTURE = {TRASCRIPT_CONFIG['groups'][group][group_number]: (group, grou
 
 BASIC_VOWELS = TRASCRIPT_CONFIG['assonance_vectors'].keys()
 
-import string
+
 SONOT_OFF_REGEX = re.compile("\*([ " +
                              '!"\\#\\$%\\&\'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_\\{\\|\\}\\~'
                              + "]|$)")
+
+for comb in TRASCRIPT_CONFIG['re_replace']:
+    comb_compiled = re.compile(comb)
+    TRASCRIPT_CONFIG['re_replace'][comb_compiled] = TRASCRIPT_CONFIG['re_replace'].pop(comb)
 
 #import pprint
 #pprint.pprint(TRASCRIPT_CONFIG)
@@ -224,8 +228,12 @@ def j_vowels_replace(w):
     return w
             
 def primary_replace(w):
+    for comb in TRASCRIPT_CONFIG['re_replace']:
+        w = re.sub(comb, TRASCRIPT_CONFIG['re_replace'][comb], w)
+        
     for l in TRASCRIPT_CONFIG['replace']:
         w = w.replace(l, TRASCRIPT_CONFIG['replace'][l])
+
     return w
 
 def letter_group_convert(l):

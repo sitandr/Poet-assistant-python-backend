@@ -11,6 +11,10 @@ replace:
   ъ: '' # empty string
   й: j
   -: ''
+
+re_replace:
+  ого$: ово # какого → каково
+  его$: ево # todo: connect this with part of speech
   
 j_vowel:
   е: э
