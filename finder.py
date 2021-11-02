@@ -49,6 +49,7 @@ def get_best_by_transcription(to_find,
       
       i = 0
       for form in words:
+            # print(form)
             new = transcripted_check(to_find_data, full_transcript(form))
             
             if new > best[0][0] and form != to_find:

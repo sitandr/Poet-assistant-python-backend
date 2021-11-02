@@ -1,4 +1,5 @@
 import argparse
+import platform
 
 def decode(s):
       return s.encode('utf-8', 'surrogateescape').decode('1251')
@@ -30,7 +31,7 @@ parser.add_argument('to_find', type = str, help = 'what to to find')
 parser.add_argument('--mean', type = str, help = 'set meaning by fields&synonyms')
 parser.add_argument('--rps', type = str, help = 'remove parts of speech')
 
-debug = True
+debug = False
 
 if debug:
       args = ["сло'во", "--mean", "Battle", '--rps', 'NOUN']
@@ -38,10 +39,10 @@ if debug:
 else:
       args = parser.parse_args()
       
-if not debug:
+if platform.python_implementation() == 'PyPy':
       args.to_find = decode(args.to_find)
-      args.mean = decode(args.mean)
-      args.rps = decode(args.rps)
+      if args.mean: args.mean = decode(args.mean)
+      if args .rps: args.rps  = decode(args.rps)
 
 import finder
 

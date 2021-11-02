@@ -72,28 +72,27 @@ def check(w1, w2):
 
 def transcripted_check(w1, w2):
     k_consend = 0.05
-    k_assonanses = 1/5
+    
+#    print(w1, w2)
 
-    end_remains_1 = not is_item_vowel(w1[0][0]) # is there a consonant(s) in the end of first world 
-    end_remains_2 = not is_item_vowel(w2[0][0]) # …of the second world
-
-    sim = (end_remains_1 == end_remains_2)*k_consend
+    sim = (bool(w1[0]) == bool(w2[0]))*k_consend
                     
-    allit_sim = vowel_ryphm_component(w1, w2, end_remains_1, end_remains_2)
-    assonance_sim = assonance_ryphm_component(w1, w2, end_remains_1, end_remains_2)
+    allit_sim = vowel_ryphm_component(w1, w2)
+    assonance_sim = assonance_ryphm_component(w1, w2)
+    struct_sim = consonant_structure(w1, w2)
     return (sim + allit_sim
-            + assonance_sim*k_assonanses)
+            + assonance_sim + struct_sim)
 
-def vowel_ryphm_component(w1, w2, end_remains_1, end_remains_2,
+def vowel_ryphm_component(w1, w2,
                           k_not_strict_stress = 5, k_strict_stress = 20):
     allit_sim = 0
     # check of vowels sounds
-    for syll in range(min(len(w1) - end_remains_1,
-                       len(w2) - end_remains_2)):
+    for syll in range(min(len(w1) - 1,
+                       len(w2) - 1)):
         # syll is number of current syllable (starts with vowel in back notation) without consonant-end
         
-        i1 = w1[syll + end_remains_1][0] # vowels of syllable
-        i2 = w2[syll + end_remains_2][0]
+        i1 = w1[syll + 1][0] # vowels of syllable
+        i2 = w2[syll + 1][0] # "+ 1" needed for consonant end
         stress1 = '.' if len(i1) == 1 else i1[1]
         stress2 = '.' if len(i2) == 1 else i2[1]
         stresses = sorted((stress1, stress2))
@@ -112,22 +111,28 @@ def vowel_ryphm_component(w1, w2, end_remains_1, end_remains_2,
         allit_sim -= vowel_dist
     return allit_sim/(len(w1) + len(w2))
 
-def assonance_ryphm_component(w1, w2, end_remains_1, end_remains_2,
+def consonant_structure(w1, w2, structure_pow = 2.0, structure_weight = 0.2):
+    struct_sim = 0
+    for i in range(min(len(w1), len(w2))):
+        struct_sim -= abs(len(w1[i]) - len(w2[i]))**structure_pow*structure_weight
+    return struct_sim
+
+def assonance_ryphm_component(w1, w2,
                               shift_coord_assonanse = 1.0, shift_syll_ending = 1.0,
-                              pow_coord_delta = 3, pow_syll_ending = 1):
+                              pow_coord_delta = 3, pow_syll_ending = 1, k_assonanses = 1/5):
     assonance_sim = 0
     i = 0
     # terrible nesting, but have no idea how to make it better
     for syll1 in range(len(w1)):
         
         # temporaly remove vowel 
-        syll_data1 = w1[syll1][1:] if (not end_remains_1 or syll1 != 0) else w1[syll1]
+        syll_data1 = w1[syll1][1:] if (syll1 != 0) else w1[syll1]
         for lett1 in range(len(syll_data1)):
             for syll2 in range(len(w2)):
-                syll_data2 = w2[syll2][1:] if (not end_remains_2 or syll2 != 0) else w2[syll2]
+                syll_data2 = w2[syll2][1:] if (syll2 != 0) else w2[syll2]
                 for lett2 in range(len(syll_data2)):
 
-                    coord_distance = ((syll2 - syll1 + end_remains_1 - end_remains_2) +
+                    coord_distance = ((syll2 - syll1) +
                                       (lett2 - lett1)/(len(syll_data2) + len(syll_data1)))
                     
                     # second summand ×2 for more correct distance, but this is better because letter dist
@@ -136,15 +141,17 @@ def assonance_ryphm_component(w1, w2, end_remains_1, end_remains_2,
                     value_sim = alliteration_similarity(syll_data1[lett1], syll_data2[lett2])
                     
                     assonance_sim += (value_sim/(abs(coord_distance) + shift_coord_assonanse)**pow_coord_delta
-                                      /(syll1 + syll2 + shift_syll_ending)**pow_syll_ending)
+                                      /(syll1 + syll2 + shift_syll_ending)**pow_syll_ending)*k_assonanses
                     i += 1
-                    
+    
     return assonance_sim/(i + 1)**1.5
 
 def full_transcript(w):
     w = transcript(w)
     w = reversed_transcription_to_array(w)
     w = vowel_split(w)
+    
+    if is_item_vowel(w[0][0]): w.insert(0, []) # add empty consonant-end
     return w
 
 ### arrayisation

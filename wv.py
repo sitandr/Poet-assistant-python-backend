@@ -48,7 +48,7 @@ def best_by_field(field, array = index2word, n = 100):
             vects = words2vectors(array)
       else:
             vects = vectors
-      return array[np.argsort(np.sum((vects - field[0])**4 / field[1], axis = -1))[:n]]
+      return array[np.argsort(np.sum((vects - field[0])**0.5 / field[1], axis = -1))[:n]]
 
 def distance(word1, word2):
       "Max 2, min — 0"
