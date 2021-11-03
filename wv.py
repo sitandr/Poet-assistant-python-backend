@@ -1,8 +1,7 @@
 import numpy as np
-import pymorphy2
+
 import pickle as pkl
 
-morph = pymorphy2.MorphAnalyzer()
 
 word2index = pkl.load(open('r_word2index.pkl', 'rb'))
 index2word = np.array(pkl.load(open('r_index2word.pkl', 'rb')))
@@ -27,6 +26,12 @@ def word_filter(function, array = index2word):
 def filter_by_parts_of_speech(words, removed_speech_parts):
       if len(removed_speech_parts) == 0:
             return words
+
+      global morph
+
+      import pymorphy2
+      morph = pymorphy2.MorphAnalyzer()
+      
       removed_speech_parts = set(removed_speech_parts)
       words_ = set()
       for word in words:
@@ -41,14 +46,14 @@ def create_field(*words):
       return (mu, sigma)
 
 def field_distance(field, word):
-      return np.sum((word2vector(word) - field[0])**4 / field[1])
+      return np.sum(np.absolute((word2vector(word) - field[0]))**0.5)**4/900_000
 
 def best_by_field(field, array = index2word, n = 100):
       if array is not index2word:
             vects = words2vectors(array)
       else:
             vects = vectors
-      return array[np.argsort(np.sum((vects - field[0])**0.5 / field[1], axis = -1))[:n]]
+      return array[np.argsort(np.sum(np.absolute((vects - field[0]))**0.5 / field[1], axis = -1))[:n]]
 
 def distance(word1, word2):
       "Max 2, min — 0"
@@ -58,4 +63,5 @@ if __name__ == '__main__':
       my = create_field(*['битва', 'кровь', 'ярость', 'храбрость', 'герой', 'зло'])
       for i in ['слово', 'слава', 'компьютер', 'кусать', 'герой', 'сладкий', 'бизнес']:
             print(i, field_distance(my, i))
+            print(i, distance('битва', i))
       print(best_by_field(my))

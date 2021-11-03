@@ -6,12 +6,14 @@ import utils
 import wv
 import bisect
 
+from coefficients import k_meaning
+
 basic_fields = {'Art': ['исскуство', 'свет', 'огонь', 'творить', 'вдохновение', 'мечтать'],
                 'Battle': ['битва', 'кровь', 'безумствовать', 'храбрый', 'герой', 'зло'],
                 'Love': ['страсть', 'влечение', 'красота', 'сердце', 'целовать'],
                 'Epic': ['мощь', 'великий', 'просветление', 'мудрость'],
-                'Fear': ['страх', 'опасность', 'побег'],
-                'Dark': ['тьма', 'смерть', 'труп', 'отчаяние', 'безумие']}
+                'Fear': ['страшно', 'опасность', 'сбежать', 'ужас'],
+                'Dark': ['тьма', 'смерть', 'труп', 'отчаяться', 'безумие', 'больно']}
 
 def getstressed(word):
       res = words[word][0]
@@ -22,7 +24,7 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-
+print('loading forms…')
 words_loaded = pickle.load(open('r_normal_stresses.pkl', 'rb'))
 normal_forms = set(words_loaded.keys())
 sorted_normal_forms = sorted(normal_forms)
@@ -121,11 +123,11 @@ def get_best(transcription_sim_words,
       
       if len(words_syn) > 1:
             field = wv.create_field(*words_syn)
-            sim_function = lambda word: - wv.field_distance(field, word) * weight
+            sim_function = lambda word: - wv.field_distance(field, word) * k_meaning['weight']
 
       else:
             words_synonym = get_nf(words_syn[0])
-            sim_function = lambda word: - wv.distance(words_synonym, word) * weight
+            sim_function = lambda word: - wv.distance(words_synonym, word) * k_meaning['weight']
             
       def key_function(key):
             score, word = key[0], get_nf(key[1])

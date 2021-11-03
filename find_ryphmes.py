@@ -43,7 +43,7 @@ if platform.python_implementation() == 'PyPy':
       args.to_find = decode(args.to_find)
       if args.mean: args.mean = decode(args.mean)
       if args .rps: args.rps  = decode(args.rps)
-
+print('importing…')
 import finder
 
 to_find = args.to_find

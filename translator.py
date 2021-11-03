@@ -1,6 +1,8 @@
 import yaml
 import re
 
+from coefficients import coefficients, k_alliteration, k_stresses, k_consonant_structure
+
 import utils
 
 TRASCRIPT_CONFIG = yaml.safe_load(open('convertation.yaml',
@@ -63,33 +65,40 @@ def alliteration_similarity(l1, l2):
 ### final_check
 
 
-def check(w1, w2):
+def check(w1, w2, debug = False):
 
     # utils.timer('s')
     w1 = full_transcript(w1)
     # utils.timer('w1')
     w2 = full_transcript(w2)
     # utils.timer('w2')
-    res = transcripted_check(w1, w2)
+    res = transcripted_check(w1, w2, debug = debug)
     # utils.timer('tc')
     return res
 
-def transcripted_check(w1, w2):
-    k_consend = 0.05
-    
-#    print(w1, w2)
+def transcripted_check(w1, w2, debug = False):
 
-    sim = (bool(w1[0]) == bool(w2[0]))*k_consend
+    w1, w2 = sorted((w1, w2), key = len)
+
+    sim_cons_end = (bool(w1[0]) == bool(w2[0]))*coefficients['check_transcription']['misc']['same_consend_end']
+    sim_len_diff = -(len(w2) / len(w1) - 1)    *coefficients['check_transcription']['misc']['length_diff_fine']
                     
-    allit_sim = vowel_ryphm_component(w1, w2)
-    assonance_sim = assonance_ryphm_component(w1, w2)
+    asson_sim = vowel_ryphm_component(w1, w2)
+    allit_sim = alliteration_ryphm_component(w1, w2)
     struct_sim = consonant_structure(w1, w2)
-    return (sim + allit_sim
-            + assonance_sim + struct_sim)
 
-def vowel_ryphm_component(w1, w2,
-                          k_not_strict_stress = 5, k_strict_stress = 20):
-    allit_sim = 0
+    if debug:
+        print('sim_cons_end', sim_cons_end)
+        print('sim_len_diff', sim_len_diff)
+        print('asson_sim', asson_sim)
+        print('allit_sim', allit_sim)
+        print('struct_sim', struct_sim)
+        
+    return (sim_cons_end + sim_len_diff + asson_sim
+            + allit_sim + struct_sim)
+
+def vowel_ryphm_component(w1, w2):
+    asson_sim = 0
     # check of vowels sounds
     for syll in range(min(len(w1) - 1,
                        len(w2) - 1)):
@@ -102,28 +111,30 @@ def vowel_ryphm_component(w1, w2,
         stresses = sorted((stress1, stress2))
         
         if stresses == ["'", '.']: # strict and strict no stress
-            return -100 # bad rythm
+            return k_stresses['bad_rythm']
        
         vowel_dist = assonance_distance(i1[0], i2[0])
         
         if stresses == ["'", "`"]:
-            vowel_dist *= k_not_strict_stress
+            vowel_dist *= k_stresses['k_not_strict_stress']
 
-        if stresses == ["'", "'"]:
-            vowel_dist *= k_strict_stress
+        elif stresses == ["'", "'"]:
+            vowel_dist *= k_stresses['k_strict_stress']
         
-        allit_sim -= vowel_dist
-    return allit_sim/(len(w1) + len(w2))
+        asson_sim -= vowel_dist
+    return asson_sim/(min(len(w1), len(w2)))**k_stresses['asympt']
 
-def consonant_structure(w1, w2, structure_pow = 2.0, structure_weight = 0.2):
+def consonant_structure(w1, w2):
+    
     struct_sim = 0
     for i in range(min(len(w1), len(w2))):
-        struct_sim -= abs(len(w1[i]) - len(w2[i]))**structure_pow*structure_weight
-    return struct_sim
+        struct_sim -= (abs(len(w1[i]) - len(w2[i]))
+                       **k_consonant_structure['pow'] * k_consonant_structure['weight'])
+        
+    return struct_sim/(min(len(w1), len(w2)))**k_consonant_structure['asympt']
 
-def assonance_ryphm_component(w1, w2,
-                              shift_coord_assonanse = 1.0, shift_syll_ending = 1.0,
-                              pow_coord_delta = 3, pow_syll_ending = 1, k_assonanses = 1/5):
+def alliteration_ryphm_component(w1, w2):
+    
     assonance_sim = 0
     i = 0
     # terrible nesting, but have no idea how to make it better
@@ -144,11 +155,13 @@ def assonance_ryphm_component(w1, w2,
                     
                     value_sim = alliteration_similarity(syll_data1[lett1], syll_data2[lett2])
                     
-                    assonance_sim += (value_sim/(abs(coord_distance) + shift_coord_assonanse)**pow_coord_delta
-                                      /(syll1 + syll2 + shift_syll_ending)**pow_syll_ending)*k_assonanses
+                    assonance_sim += (value_sim/(abs(coord_distance) + k_alliteration['shift_coord'])
+                                      **k_alliteration['pow_coord_delta']
+                                      /(syll1 + syll2 + k_alliteration['shift_syll_ending'])
+                                      **k_alliteration['pow_syll_ending'])
                     i += 1
     
-    return assonance_sim/(i + 1)**1.5
+    return assonance_sim/min(len(w1), len(w2))**k_alliteration['asympt']*k_alliteration['weight']
 
 def full_transcript(w):
     w = transcript(w)

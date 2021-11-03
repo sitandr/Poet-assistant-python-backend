@@ -5,10 +5,18 @@ import numpy as np
 word2index = pkl.load(open('s_word2index.pkl', 'rb'))
 index2word = pkl.load(open('s_index2word.pkl', 'rb'))
 vectors =    np.load('s_vectors.npy')
+vocab =    pkl.load(open('s_vocab.pkl', 'rb'))
 
 normal_forms = pkl.load(open('s_normal_stresses.pkl', 'rb'))
 
 reduced = set(normal_forms.keys())&set(index2word)
+
+
+print(len(reduced))
+
+reduced = set(filter(lambda t: vocab[t].count > 50, reduced))
+
+print(len(reduced))
 
 normal_forms = {i: normal_forms[i] for i in reduced}
 

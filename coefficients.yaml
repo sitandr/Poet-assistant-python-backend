@@ -1,0 +1,27 @@
+check_transcription:
+
+  misc:
+    same_consend_end: 0.05
+    length_diff_fine: 0.20
+
+  stresses:
+    k_not_strict_stress:  2.0 # k × assonanse_distance
+    k_strict_stress:      5.0
+    bad_rythm:            -10
+    asympt:               1.0
+
+  consonant_structure:
+    pow:    2.0
+    weight: 0.2
+    asympt: 1.0
+
+  alliteration:
+    shift_coord:           1.0
+    shift_syll_ending:     1.0
+    pow_coord_delta:       3.0
+    pow_syll_ending:       1.0
+    weight:                0.2
+    asympt:                1.5
+
+meaning:
+  weight: 2.0
