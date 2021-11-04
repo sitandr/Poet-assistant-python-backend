@@ -1,3 +1,4 @@
+
 from translator import check, full_transcript, transcripted_check
 
 import pickle
@@ -8,13 +9,6 @@ import bisect
 
 from coefficients import k_meaning
 
-basic_fields = {'Art': ['исскуство', 'свет', 'огонь', 'творить', 'вдохновение', 'мечтать'],
-                'Battle': ['битва', 'кровь', 'безумствовать', 'храбрый', 'герой', 'зло'],
-                'Love': ['страсть', 'влечение', 'красота', 'сердце', 'целовать'],
-                'Epic': ['мощь', 'великий', 'просветление', 'мудрость'],
-                'Fear': ['страшно', 'опасность', 'сбежать', 'ужас'],
-                'Dark': ['тьма', 'смерть', 'труп', 'отчаяться', 'безумие', 'больно']}
-
 def getstressed(word):
       res = words[word][0]
       if res == '-':
@@ -24,7 +18,6 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-print('loading forms…')
 words_loaded = pickle.load(open('r_normal_stresses.pkl', 'rb'))
 normal_forms = set(words_loaded.keys())
 sorted_normal_forms = sorted(normal_forms)

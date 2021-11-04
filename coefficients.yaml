@@ -1,25 +1,36 @@
 check_transcription:
 
+  # asympt — пропорциональность параметра длине слова, чтобы не поощрать более длинные слова, следует
+  # разделить на минимальную длину^asympt; в силу специфики алгоритмов asympt будут разными
+  # weight — "вес" параметра, не указывается, если можно понизить остальные коэффициенты и получить
+  # то же самое 
+
   misc:
-    same_consend_end: 0.05
-    length_diff_fine: 0.20
+    same_consend_end: 0.05 # +, если оба имеют/не имеют согласных на концах
+    length_diff_fine: 0.20 # −(длина₁/длина₂ - 1)·length_diff_fine; длина₁ ≥ длины₂
 
   stresses:
-    k_not_strict_stress:  2.0 # k × assonanse_distance
-    k_strict_stress:      5.0
-    bad_rythm:            -10
+    # для каждой соотв. пары гласных assonanse_distance = Σ Δassonance_vectors² (см. convertation.yaml)
+    k_not_strict_stress:  2.0 # − k · assonanse_distance, если ударение нестрогое
+    k_strict_stress:      5.0 # -//- если ударение строгое
+    bad_rythm:            -10 # −, если не совпадают по ритму (строгий ударный со строгим безударным)
+
     asympt:               1.0
 
   consonant_structure:
+    # для каждого слога −(длина_слога₁ − длина_слога₂)^pow
     pow:    2.0
+
     weight: 0.2
     asympt: 1.0
 
   alliteration:
+    # система фиговая, нужно рефакторить!
     shift_coord:           1.0
     shift_syll_ending:     1.0
     pow_coord_delta:       3.0
     pow_syll_ending:       1.0
+
     weight:                0.2
     asympt:                1.5
 
