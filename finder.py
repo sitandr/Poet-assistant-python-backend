@@ -18,41 +18,63 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-words_loaded = pickle.load(open('r_normal_stresses.pkl', 'rb'))
-normal_forms = set(words_loaded.keys())
-sorted_normal_forms = sorted(normal_forms)
+words_loaded = pickle.load(open('r_min_zaliz.pkl', 'rb'))
+normal_forms = list(words_loaded.keys())
 
-# word_normal_form_list = [(key, getstressed(key))
-#                          for key in words]
-
-def filter_remove_parts_of_speech(remove = ['VERB', 'INFN']):
+def get_all_forms_of(elements, words = None):
+      if not words: words = words_loaded
+      no_change = ['?', 'част', 'союз', 'н', 'межд', 'вводн']
       
-      words_filtered = wv.filter_by_parts_of_speech(words_loaded, remove)
-      return {form for w in words_filtered
-                       for form in words_loaded[w]
-                       if (form not in ['-', ''])}
+      if elements[0] in no_change or elements[-1] == ['']:
+            yield elements[1]
+            return
+      
+      ps = elements[-1].split(';')
+      for p in ps:
+            if p and p[0].isdigit():
+                  yield elements[1 + int(p[0])] + p[1:]
+            else:
+                  yield elements[1] + p
+
+def get_best_form(elements, to_find_data, words = None):
+      if not words: words = words_loaded
+      
+      best = float('-inf')
+      best_form = None
+      for form in get_all_forms_of(elements, words):
+            new = transcripted_check(to_find_data, full_transcript(form))
+            if new > best:
+                  best = new
+                  best_form = form
+      return best, best_form
 
 def get_best_by_transcription(to_find,
-                              words,
+                              remove = [],
+                              words = None,
                               n_best = 500,
                               time = True):
+      if not words: words = words_loaded
+      
       assert "'" in to_find
       if time: utils.timer(supress_print = True)
       
       to_find_data = full_transcript(to_find)
+      normal_to_find = normalize(to_find)
       best = [(-float('inf'), '')]
       
       i = 0
-      for form in words:
-            # print(form)
-            new = transcripted_check(to_find_data, full_transcript(form))
+      for word in words_loaded:
+            elements = words[word].split('+')
+            if elements[0] in remove or word == normal_to_find:
+                  continue
             
+            new, form = get_best_form(elements, to_find_data, words)
             if new > best[0][0] and form != to_find:
-                  bisect.insort(best, (new, form))
+                  bisect.insort(best, (new, form, word))
                   if len(best) > n_best:
                         best.pop(0)
             i += 1
-            if not i%5000:
+            if not i%100:
                   print('\r', round(i/len(words)*100, 2), '%', end = ' ')
       if time: utils.timer('Sum transcription time:')
       return best
@@ -96,23 +118,6 @@ def get_best(transcription_sim_words,
       if not words_syn:
             return cut_first_n_from_items(transcription_sim_words, n_best)
       
-      cash_normal_f = {}
-
-      def get_nf(w):
-            if w not in cash_normal_f:
-                  cash_normal_f[w] = quick_source(w)
-
-            return cash_normal_f[w]
-
-      unic_words = []
-      norm_forms = [get_nf(i) for i in exclude]
-      
-      for i in transcription_sim_words:
-            f = get_nf(i[1])
-            if f not in norm_forms:
-                  unic_words.append(i)
-                  norm_forms.append(f)
-      
       
       if len(words_syn) > 1:
             field = wv.create_field(*words_syn)
@@ -123,20 +128,10 @@ def get_best(transcription_sim_words,
             sim_function = lambda word: - wv.distance(words_synonym, word) * k_meaning['weight']
             
       def key_function(key):
-            score, word = key[0], get_nf(key[1])
+            score, word = key[0], key[2]
             return sim_function(word) + score
-            
-      sorted_items = sorted(unic_words, key = key_function, reverse = True)
+      
+      sorted_items = sorted(transcription_sim_words, key = key_function, reverse = True)
       
       return cut_first_n_from_items(sorted_items, n_best)
 
-
-# filter_remove_parts_of_speech([])
-# mind the stress!
-# to_find = "иде'и"
-
-
-
-# best = get_best_by_transcription(to_find, words = all_forms_set)
-# print(best)
-# print(get_best(best, words_field = ))

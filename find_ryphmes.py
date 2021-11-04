@@ -8,24 +8,22 @@ def decode(s):
 
 parser = argparse.ArgumentParser(description =
                                  '''Compex tool for finding ryphms;
-List of parts of speech:
-NOUN    имя существительное             хомяк
-ADJF    имя прилагательное (полное)     хороший
-ADJS    имя прилагательное (краткое)    хорош
-COMP    компаратив                      лучше, получше, выше
-VERB    глагол (личная форма)           говорю, говорит, говорил
-INFN    глагол (инфинитив)              говорить, сказать
-PRTF    причастие (полное)              прочитавший, прочитанная
-PRTS    причастие (краткое)             прочитана
-GRND    деепричастие                    прочитав, рассказывая
-NUMR    числительное                    три, пятьдесят
-ADVB    наречие                         круто
-NPRO    местоимение-существительное	он
-PRED    предикатив                      некогда
-PREP    предлог                         в
-CONJ    союз                            и
-PRCL    частица                         бы, же, лишь
-INTJ    междометие                      ой
+List of parts of speech (буквы везде русские):
+с      существительное
+п      прилагательное
+мс     местоимение-существительное
+мс-п   местоименное-прилагательное
+г      глагол
+н      наречие
+числ   числительное
+числ-п счётное прилагательное
+вводн  вводное слово
+межд   межометие
+предик предикатив
+предл  предлог
+союз   союз
+сравн  сравнительная степень
+част   частица
 
 Fields available:
 ''' + ', '.join(basic_fields.keys()),
@@ -58,8 +56,8 @@ if "'" not in to_find:
 
 
 remove = args.rps.replace(' ', '').split('+') if args.rps else []
-all_forms_set = finder.filter_remove_parts_of_speech(remove)
-best = finder.get_best_by_transcription(to_find, all_forms_set)
+
+best = finder.get_best_by_transcription(to_find, remove)
 
 field = []
 if args.mean:
