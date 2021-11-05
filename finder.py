@@ -18,7 +18,9 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-words_loaded = pickle.load(open('res/r_min_zaliz.pkl', 'rb'))
+words_loaded = pickle.load(open('res/r_min_zaliz.pkl'   , 'rb'))
+special_info = pickle.load(open('res/r_special_info.pkl', 'rb'))
+
 normal_forms = list(words_loaded.keys())
 
 def get_all_forms_of(elements, words = None):
@@ -54,6 +56,7 @@ def get_best_by_transcription(to_find,
                               n_best = 500,
                               time = True):
       if not words: words = words_loaded
+      all_num = sum([special_info[p] for p in special_info if p not in remove])
       
       assert "'" in to_find or 'ё' in to_find
       if time: utils.timer(supress_print = True)
@@ -64,6 +67,7 @@ def get_best_by_transcription(to_find,
       
       i = 0
       for word in words_loaded:
+            # print(word)
             elements = words[word].split('+')
             if elements[0] in remove or word == normal_to_find:
                   continue
@@ -75,7 +79,7 @@ def get_best_by_transcription(to_find,
                         best.pop(0)
             i += 1
             if not i%100:
-                  print('\r', round(i/len(words)*100, 2), '%', end = ' ')
+                  print('\r', round(i/all_num*100, 2), '%', end = ' ')
       if time: utils.timer('Sum transcription time:')
       return best
 

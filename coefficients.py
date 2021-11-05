@@ -1,5 +1,7 @@
 import yaml
 
+
+#def load
 coefficients = yaml.safe_load(open('config/coefficients.yaml',
                                        encoding = 'utf-8'))
 

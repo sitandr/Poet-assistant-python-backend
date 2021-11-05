@@ -24,6 +24,7 @@ List of parts of speech (буквы везде русские):
 союз   союз
 сравн  сравнительная степень
 част   частица
+?      куски фразеологизмов и т.п.
 
 Fields available:
 ''' + ', '.join(basic_fields.keys()),
