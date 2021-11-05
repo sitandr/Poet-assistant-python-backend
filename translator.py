@@ -5,7 +5,7 @@ from coefficients import coefficients, k_alliteration, k_stresses, k_consonant_s
 
 import utils
 
-TRASCRIPT_CONFIG = yaml.safe_load(open('convertation.yaml',
+TRASCRIPT_CONFIG = yaml.safe_load(open('config/convertation.yaml',
                                        encoding = 'utf-8'))
 
 GROUPS = list(TRASCRIPT_CONFIG['groups'].keys()) # this assumes that the order is important; however, python dicts don't
@@ -19,7 +19,6 @@ GROUP_STRUCTURE = {TRASCRIPT_CONFIG['groups'][group][group_number]: (group, grou
                    for group_number in range(len(TRASCRIPT_CONFIG['groups'][group]))}
 
 BASIC_VOWELS = TRASCRIPT_CONFIG['assonance_vectors'].keys()
-
 
 SONOT_OFF_REGEX = re.compile("\*([ " +
                              '!"\\#\\$%\\&\'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_\\{\\|\\}\\~'
@@ -136,7 +135,7 @@ def consonant_structure(w1, w2):
 def alliteration_ryphm_component(w1, w2):
     
     assonance_sim = 0
-    i = 0
+    
     # terrible nesting, but have no idea how to make it better
     for syll1 in range(len(w1)):
         
@@ -147,19 +146,18 @@ def alliteration_ryphm_component(w1, w2):
                 syll_data2 = w2[syll2][1:] if (syll2 != 0) else w2[syll2]
                 for lett2 in range(len(syll_data2)):
 
-                    coord_distance = ((syll2 - syll1) +
-                                      (lett2 - lett1)/(len(syll_data2) + len(syll_data1)))
-                    
+                    d1 = syll1 + lett1/(len(syll_data2) + len(syll_data1))
+                    d2 = syll2 + lett2/(len(syll_data2) + len(syll_data1))
+
                     # second summand ×2 for more correct distance, but this is better because letter dist
-                    # "weights" less; in fact, there is just a coefficient 2
+                    # "weights" less; in fact, there is just a constant coefficient 2
                     
                     value_sim = alliteration_similarity(syll_data1[lett1], syll_data2[lett2])
-                    
-                    assonance_sim += (value_sim/(abs(coord_distance) + k_alliteration['shift_coord'])
-                                      **k_alliteration['pow_coord_delta']
-                                      /(syll1 + syll2 + k_alliteration['shift_syll_ending'])
-                                      **k_alliteration['pow_syll_ending'])
-                    i += 1
+
+                    k  = (abs(d1 - d2) +  k_alliteration['shift_coord'])**k_alliteration['pow_coord_delta']
+                    k *= (d1 + d2 + k_alliteration['shift_syll_ending'])**k_alliteration['pow_syll_ending']      
+                                      
+                    assonance_sim += value_sim/k
     
     return assonance_sim/min(len(w1), len(w2))**k_alliteration['asympt']*k_alliteration['weight']
 
@@ -212,6 +210,7 @@ def vowel_split(array):
 
 def transcript(w):
     w = j_vowels_replace(w)
+    w = soft_by_I(w)
     w = primary_replace(w)
     w = group_replace(w)
     w = secondary_replace(w)
@@ -239,7 +238,17 @@ def j_vowels_replace(w):
                 w = w[:ind] + '`' + replace_to + w[ind + 1:]
 
     return w
-            
+
+def soft_by_I(w):
+    for i in TRASCRIPT_CONFIG['softable']:
+        while True:
+            ind = w.find(i + 'и')
+            if ind == -1:
+                break
+            w = w[:ind + 1] + '`' + 'и' + w[ind + 2:]
+            #print(i, w)
+    return w
+    
 def primary_replace(w):
     for comb in TRASCRIPT_CONFIG['re_replace']:
         w = re.sub(comb, TRASCRIPT_CONFIG['re_replace'][comb], w)

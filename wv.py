@@ -3,9 +3,9 @@ import numpy as np
 import pickle as pkl
 
 
-word2index = pkl.load(open('r_word2index.pkl', 'rb'))
-index2word = np.array(pkl.load(open('r_index2word.pkl', 'rb')))
-vectors =    np.load('r_vectors.npy')
+word2index =          pkl.load(open('res/r_word2index.pkl', 'rb'))
+index2word = np.array(pkl.load(open('res/r_index2word.pkl', 'rb')))
+vectors =    np.load               ('res/r_vectors.npy')
 
 
 def word2vector(word):

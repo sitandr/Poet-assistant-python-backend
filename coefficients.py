@@ -1,6 +1,6 @@
 import yaml
 
-coefficients = yaml.safe_load(open('coefficients.yaml',
+coefficients = yaml.safe_load(open('config/coefficients.yaml',
                                        encoding = 'utf-8'))
 
 k_alliteration = coefficients['check_transcription']['alliteration']

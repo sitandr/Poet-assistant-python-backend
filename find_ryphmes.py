@@ -50,7 +50,7 @@ if platform.python_implementation() == 'PyPy':
 import finder
 
 to_find = args.to_find
-if "'" not in to_find:
+if "'" not in to_find and 'ё' not in to_find:
       print("Please, mind the stress!")
       exit()
 

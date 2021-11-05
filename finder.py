@@ -18,7 +18,7 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-words_loaded = pickle.load(open('r_min_zaliz.pkl', 'rb'))
+words_loaded = pickle.load(open('res/r_min_zaliz.pkl', 'rb'))
 normal_forms = list(words_loaded.keys())
 
 def get_all_forms_of(elements, words = None):
@@ -55,7 +55,7 @@ def get_best_by_transcription(to_find,
                               time = True):
       if not words: words = words_loaded
       
-      assert "'" in to_find
+      assert "'" in to_find or 'ё' in to_find
       if time: utils.timer(supress_print = True)
       
       to_find_data = full_transcript(to_find)
@@ -124,7 +124,7 @@ def get_best(transcription_sim_words,
             sim_function = lambda word: - wv.field_distance(field, word) * k_meaning['weight']
 
       else:
-            words_synonym = get_nf(words_syn[0])
+            words_synonym = words_syn[0]
             sim_function = lambda word: - wv.distance(words_synonym, word) * k_meaning['weight']
             
       def key_function(key):
