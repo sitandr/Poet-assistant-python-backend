@@ -1,6 +1,7 @@
 import argparse
 import platform
 from coefficients import basic_fields
+import sys
 
 def decode(s):
       return s.encode('utf-8', 'surrogateescape').decode('1251')
@@ -51,9 +52,9 @@ if platform.python_implementation() == 'PyPy':
 import finder
 
 to_find = args.to_find
-if "'" not in to_find and 'ё' not in to_find:
+if "'" not in to_find and 'ё' not in to_find and '`' not in to_find:
       print("Please, mind the stress!")
-      exit()
+      sys.exit(1)
 
 
 remove = args.rps.replace(' ', '').split('+') if args.rps else []

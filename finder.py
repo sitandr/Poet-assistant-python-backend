@@ -58,7 +58,7 @@ def get_best_by_transcription(to_find,
       if not words: words = words_loaded
       all_num = sum([special_info[p] for p in special_info if p not in remove])
       
-      assert "'" in to_find or 'ё' in to_find
+      assert "'" in to_find or 'ё' in to_find or '`' in to_find
       if time: utils.timer(supress_print = True)
       
       to_find_data = full_transcript(to_find)
