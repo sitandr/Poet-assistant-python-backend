@@ -1,12 +1,8 @@
-import yaml
 import re
-
 from coefficients import coefficients, k_alliteration, k_stresses, k_consonant_structure
-
 import utils
 
-TRASCRIPT_CONFIG = yaml.safe_load(open('config/convertation.yaml',
-                                       encoding = 'utf-8'))
+from resource_importer import TRASCRIPT_CONFIG
 
 GROUPS = list(TRASCRIPT_CONFIG['groups'].keys()) # this assumes that the order is important; however, python dicts don't
 # gurantee it, so it could be be replaced (but it works for Python >= 3.7)

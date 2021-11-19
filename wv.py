@@ -1,11 +1,7 @@
 import numpy as np
+from resource_importer import word2index, index2word, vectors
 
-import pickle as pkl
 
-
-word2index =          pkl.load(open('res/r_word2index.pkl', 'rb'))
-index2word = np.array(pkl.load(open('res/r_index2word.pkl', 'rb')))
-vectors =    np.load               ('res/r_vectors.npy')
 
 
 def word2vector(word):

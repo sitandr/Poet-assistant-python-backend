@@ -1,13 +1,12 @@
-
 from translator import check, full_transcript, transcripted_check
 
-import pickle
 import utils
 
 import wv
 import bisect
 
 from coefficients import k_meaning
+from resource_importer import words_loaded, special_info
 
 def getstressed(word):
       res = words[word][0]
@@ -18,8 +17,7 @@ def getstressed(word):
 def normalize(word):
       return word.replace('`', '').replace("'", '')
 
-words_loaded = pickle.load(open('res/r_min_zaliz.pkl'   , 'rb'))
-special_info = pickle.load(open('res/r_special_info.pkl', 'rb'))
+
 
 normal_forms = list(words_loaded.keys())
 
@@ -79,7 +77,7 @@ def get_best_by_transcription(to_find,
                         best.pop(0)
             i += 1
             if not i%100:
-                  print('\r', round(i/all_num*100, 2), '%', end = ' ')
+                  print(round(i/all_num*100, 2), '%')
       if time: utils.timer('Sum transcription time:')
       return best
 

@@ -3,6 +3,9 @@ import platform
 from coefficients import basic_fields
 import sys
 
+# to build:
+# pyinstaller find_ryphmes.py -F --add-data res;res --add-data config;config -i "NONE"
+
 def decode(s):
       return s.encode('utf-8', 'surrogateescape').decode('1251')
 

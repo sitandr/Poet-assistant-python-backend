@@ -1,9 +1,4 @@
-import yaml
-
-
-#def load
-coefficients = yaml.safe_load(open('config/coefficients.yaml',
-                                       encoding = 'utf-8'))
+from resource_importer import coefficients
 
 k_alliteration = coefficients['check_transcription']['alliteration']
 k_stresses     = coefficients['check_transcription']['stresses']
