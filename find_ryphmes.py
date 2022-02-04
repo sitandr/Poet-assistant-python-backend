@@ -1,5 +1,6 @@
 import argparse
 import platform
+import coefficients
 from coefficients import basic_fields
 import sys
 
@@ -38,6 +39,7 @@ parser.add_argument('to_find', type = str, help = 'what to to find')
 parser.add_argument('--mean', type = str, help = '''set meaning by fields&synonyms;
 separated with "+"; for example, "сильный" or "Dark + Epic"''')
 parser.add_argument('--rps', type = str, help = 'remove parts of speech; separated by "+"')
+parser.add_argument('--log', type = str, help = 'where to write log')
 
 debug = False
 
@@ -54,9 +56,19 @@ if platform.python_implementation() == 'PyPy':
 
 import finder
 
+if args.log:
+      print_ = print
+      def print(*text):
+            log_file = open(args.log, 'a', encoding = 'utf-8')
+            print_(*text, file = log_file)
+            log_file.close()
+      
+      coefficients.print = print
+                
 to_find = args.to_find
 if "'" not in to_find and 'ё' not in to_find and '`' not in to_find:
       print("Please, mind the stress!")
+      if args.log: print('end')
       sys.exit(1)
 
 
@@ -75,3 +87,4 @@ if args.mean:
 
 found = finder.get_best(best, words_syn = field, exclude = [to_find])
 print('; '.join(found))
+if args.log: print('end') 

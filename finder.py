@@ -6,6 +6,7 @@ import wv
 import bisect
 
 from coefficients import k_meaning
+import coefficients
 from resource_importer import words_loaded, special_info
 
 def getstressed(word):
@@ -67,6 +68,7 @@ def get_best_by_transcription(to_find,
       for word in words_loaded:
             # print(word)
             elements = words[word].split('+')
+            # elements[0] is current part of speech
             if elements[0] in remove or word == normal_to_find:
                   continue
             
@@ -77,7 +79,7 @@ def get_best_by_transcription(to_find,
                         best.pop(0)
             i += 1
             if not i%100:
-                  print(round(i/all_num*100, 2), '%')
+                  coefficients.print(round(i/all_num*100, 2), '%')
       if time: utils.timer('Sum transcription time:')
       return best
 
