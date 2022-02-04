@@ -1,3 +1,14 @@
+basic_comparisions:
+
+  assonance_formula:
+    # dist = weight * Σ(a[i] - b[i])**pow + shift
+    pow:      0
+    shift:    5
+    weight: 0.1
+
+  alliteration_formula:
+    
+
 check_transcription:
 
   # asympt — пропорциональность параметра длине слова, чтобы не поощрать более длинные слова, следует

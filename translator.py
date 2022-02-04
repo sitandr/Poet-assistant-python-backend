@@ -283,25 +283,3 @@ def secondary_replace(w):
     res = res.replace(' ', '')
         
     return res
-
-##w1 = "бро'шу"
-##w2 = "хоро'ший"
-##w3 = "галью'н"
-##w4 = "лягу'шка"
-##w5 = "коль ты'"
-##w6 = "ца'пля"
-##w7 = "лё'д"
-##w8 = "дро'бь"
-##
-##check(w1, w2)
-##check(w1, w3)
-##check(w1, w4)
-##check(w1, w5)
-##check(w1, w6)
-##check(w1, w7)
-##check(w1, w8)
-##check("сла'ва", "сле'ва")
-
-# import pickle
-# a = pickle.load(open('normal_stresses.pkl', 'rb'))
-# check("куса'ть", "еванге'лик")
