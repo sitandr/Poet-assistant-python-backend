@@ -20,7 +20,7 @@ SONOT_OFF_REGEX = re.compile("\*([ " +
                              '!"\\#\\$%\\&\'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_\\{\\|\\}\\~'
                              + "]|$)")
 
-for comb in TRASCRIPT_CONFIG['re_replace']:
+for comb in list(TRASCRIPT_CONFIG['re_replace']):
     comb_compiled = re.compile(comb)
     TRASCRIPT_CONFIG['re_replace'][comb_compiled] = TRASCRIPT_CONFIG['re_replace'].pop(comb)
 
